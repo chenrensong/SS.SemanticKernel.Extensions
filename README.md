@@ -23,14 +23,6 @@ kernelBuilder = kernelBuilder
 
 This configuration allows the SemanticKernel extension to utilize the `text2vec-base-chinese` model and the embedding service located at `http://127.0.0.1:8000/embeddings`.
 
-## Usage
-
-Once configured, you can begin using this extension to generate semantic-based text embeddings.
-
-```csharp
-// Provide a usage example here
-```
-
 ## Contributing
 
 Contributions of any kind are welcome. If you have any suggestions or issues with this project, feel free to open an issue or pull request.
