@@ -12,9 +12,10 @@ using static Microsoft.SemanticKernel.AI.AIException;
 namespace Microsoft.SemanticKernel {
     public class CoreTextEmbeddingGeneration : ITextEmbeddingGeneration {
 
-        public CoreTextEmbeddingGeneration(string modelId, string endpoint, HttpClient? httpClient = null, ILogger? logger = null) {
+        public CoreTextEmbeddingGeneration(string modelId, string endpoint,string key, HttpClient? httpClient = null, ILogger? logger = null) {
             _modelId = modelId;
             _endpoint = endpoint;
+            _key = key;
             _logger = logger;
             _httpClient = httpClient;
         }
@@ -22,6 +23,8 @@ namespace Microsoft.SemanticKernel {
         private string _modelId;
 
         private string _endpoint;
+
+        private string _key;
 
         private HttpClient? _httpClient;
 
@@ -46,6 +49,10 @@ namespace Microsoft.SemanticKernel {
                 input = input,
                 model = ModelId
             };
+            if (!string.IsNullOrEmpty(_key))
+            {
+                _httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {_key}");
+            }
             var json = JsonSerializer.Serialize(request);
             var data = new StringContent(json, Encoding.UTF8, "application/json");
             HttpResponseMessage response = await _httpClient.PostAsync(_endpoint, data, cancellationToken);
