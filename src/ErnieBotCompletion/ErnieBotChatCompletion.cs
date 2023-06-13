@@ -14,14 +14,15 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using static Microsoft.SemanticKernel.CreateChatCompletionRequest;
+using static Microsoft.SemanticKernel.ErnieBotChatResult;
 
 namespace Microsoft.SemanticKernel
 {
-    public sealed class CoreChatCompletion : IChatCompletion, ITextCompletion
+    public sealed class ErnieBotChatCompletion : IChatCompletion, ITextCompletion
     {
         private const int MaxResultsPerPrompt = 128;
 
-        public CoreChatCompletion(string modelId, string endpoint, string key, HttpClient? httpClient = null, ILogger? logger = null)
+        public ErnieBotChatCompletion(string modelId, string endpoint, string key, HttpClient? httpClient = null, ILogger? logger = null)
         {
             _modelId = modelId;
             _key = key;
@@ -81,11 +82,8 @@ namespace Microsoft.SemanticKernel
 
         private async IAsyncEnumerable<TResponse> GetChatCompletionsStreamingAsync<TRequest, TResponse>(string requestUri, TRequest request, [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
-            if (!string.IsNullOrEmpty(_key))
-            {
-                _httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {_key}");
-            }
-            using var httpResponseMessage = await _httpClient.PostAsStream(requestUri, request!, cancellationToken);
+            var uri = $"{requestUri}?access_token={_key}";
+            using var httpResponseMessage = await _httpClient.PostAsStream(uri, request!, cancellationToken);
             using var stream = await httpResponseMessage.Content.ReadAsStreamAsync();
             using var streamReader = new StreamReader(stream);
             while (streamReader.EndOfStream is false)
@@ -104,11 +102,6 @@ namespace Microsoft.SemanticKernel
 
                 var dataPosition = line.IndexOf("data: ", StringComparison.Ordinal);
                 line = dataPosition != 0 ? line : line.Substring("data: ".Length);
-
-                if (line.StartsWith("[DONE]"))
-                {
-                    break;
-                }
 
                 TResponse? createCompletionResponse = default;
 
@@ -173,10 +166,10 @@ namespace Microsoft.SemanticKernel
             requestSettings ??= new();
             ValidateMaxTokens(requestSettings.MaxTokens);
             var options = CreateChatCompletionsOptions(requestSettings, chat);
-            await foreach (var completion in GetChatCompletionsStreamingAsync<CreateChatCompletionRequest, CreateChatCompletionResponse>(_endpoint,
+            await foreach (var completion in GetChatCompletionsStreamingAsync<ErnieBotCompletionRequest, ErnieBotCompletionResponse>(_endpoint,
                 options, cancellationToken))
             {
-                yield return new CoreChatStreamingResult(completion, completion.Choices);
+                yield return new ErnieBotChatStreamingResult(completion, options.Messages.LastOrDefault());
             }
 
         }
@@ -196,57 +189,36 @@ namespace Microsoft.SemanticKernel
             chatSettings ??= new();
             ValidateMaxTokens(chatSettings.MaxTokens);
             var chatOptions = CreateChatCompletionsOptions(chatSettings, chat);
-            if (!string.IsNullOrEmpty(_key))
-            {
-                _httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {_key}");
-            }
-            var response = await _httpClient.Post<CreateChatCompletionResponse>(_endpoint, chatOptions, cancellationToken).ConfigureAwait(false);
+            var uri = $"{_endpoint}?access_token={_key}";
+            var response = await _httpClient.Post<ErnieBotCompletionResponse>(uri, chatOptions, cancellationToken).ConfigureAwait(false);
             if (response == null)
             {
-                throw new CoreInvalidResponseException<CreateChatCompletionResponse>(null, "Chat completions null response");
+                throw new CoreInvalidResponseException<ErnieBotCompletionResponse>(null, "Chat completions null response");
             }
-            if (response.Choices.Count == 0)
+            if (response.Result == null)
             {
-                throw new CoreInvalidResponseException<CreateChatCompletionResponse>(response, "Chat completions not found");
+                throw new CoreInvalidResponseException<ErnieBotCompletionResponse>(response, "Chat completions not found");
             }
-            return response.Choices.Select(chatChoice => new CoreChatResult(response, chatChoice)).ToList();
+            var list = new List<ErnieBotChatResult> { new ErnieBotChatResult(response, chatOptions.Messages.LastOrDefault()) };
+            return list;
         }
 
 
-        private static CreateChatCompletionRequest CreateChatCompletionsOptions(ChatRequestSettings requestSettings, IEnumerable<ChatMessageBase> chatHistory)
+        private static ErnieBotCompletionRequest CreateChatCompletionsOptions(ChatRequestSettings requestSettings, IEnumerable<ChatMessageBase> chatHistory)
         {
             if (requestSettings.ResultsPerPrompt is < 1 or > MaxResultsPerPrompt)
             {
                 throw new ArgumentOutOfRangeException($"{nameof(requestSettings)}.{nameof(requestSettings.ResultsPerPrompt)}", requestSettings.ResultsPerPrompt, $"The value must be in range between 1 and {MaxResultsPerPrompt}, inclusive.");
             }
 
-            var options = new CreateChatCompletionRequest
+            var options = new ErnieBotCompletionRequest
             {
-                MaxTokens = requestSettings.MaxTokens,
-                Temperature = (float?)requestSettings.Temperature,
-                TopP = (float?)requestSettings.TopP,
-                FrequencyPenalty = (float?)requestSettings.FrequencyPenalty,
-                PresencePenalty = (float?)requestSettings.PresencePenalty,
-                N = requestSettings.ResultsPerPrompt
             };
-
-            if (requestSettings.StopSequences is { Count: > 0 })
-            {
-                if (options.Stop == null)
-                {
-                    options.Stop = new List<string>();
-                }
-
-                foreach (var s in requestSettings.StopSequences)
-                {
-                    options.Stop.Add(s);
-                }
-            }
 
             foreach (var message in chatHistory)
             {
                 var validRole = GetValidChatRole(message.Role);
-                options.Messages.Add(new ChatCompletionMessage(validRole.Label, message.Content));
+                options.Messages.Add(new ErnieBotMessage(validRole.Label, message.Content));
             }
 
             return options;

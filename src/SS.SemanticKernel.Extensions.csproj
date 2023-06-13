@@ -19,8 +19,21 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <None Remove="Skills\Query\skprompt.txt" />
+	  <None Remove="Skills\Summary\skprompt.txt" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <EmbeddedResource Include="Skills\Query\skprompt.txt" />
+	  <EmbeddedResource Include="Skills\Summary\skprompt.txt" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <PackageReference Include="BlingFireNuget" Version="0.1.8" />
+	  <PackageReference Include="Microsoft.Playwright" Version="1.34.0" />
 	  <PackageReference Include="Microsoft.SemanticKernel" Version="0.15.230609.2-preview" />
 	  <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+	  <PackageReference Include="PdfPig" Version="0.1.8" />
 	  <PackageReference Include="System.Net.Http" Version="4.3.4" />
 	  <PackageReference Include="System.Net.Http.Json" Version="7.0.1" />
 	</ItemGroup>
