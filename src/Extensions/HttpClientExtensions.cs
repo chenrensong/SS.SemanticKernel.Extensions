@@ -1,6 +1,9 @@
-﻿using System.Net.Http;
+﻿using Newtonsoft.Json;
+using System;
+using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading;
@@ -19,8 +22,13 @@ namespace SS.SemanticKernel.Extensions
         internal static async Task<T?> Post<T>(this HttpClient httpClient, string requestUri, object request, CancellationToken cancellationToken = default)
         {
             var jsonSerializerOptions = new JsonSerializerOptions { DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault };
-            var response = await httpClient.PostAsJsonAsync(requestUri, request, jsonSerializerOptions, cancellationToken);
-            //var test = await response.Content.ReadAsStringAsync();
+            //var response = await httpClient.PostAsJsonAsync(requestUri, request, jsonSerializerOptions, cancellationToken);
+
+            string json = JsonConvert.SerializeObject(request);
+
+            // Send the POST request
+            var response = await httpClient.PostAsync(requestUri, new StringContent(json, Encoding.UTF8, "application/json"));
+
             return await response.Content.ReadFromJsonAsync<T?>(cancellationToken: cancellationToken);
         }
 
