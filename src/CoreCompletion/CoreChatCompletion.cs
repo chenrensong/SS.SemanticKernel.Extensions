@@ -1,5 +1,4 @@
-﻿using Azure;
-using Azure.AI.OpenAI;
+﻿using Azure.AI.OpenAI;
 using Microsoft.Extensions.Logging;
 using Microsoft.SemanticKernel.AI;
 using Microsoft.SemanticKernel.AI.ChatCompletion;
@@ -16,8 +15,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using static Microsoft.SemanticKernel.CreateChatCompletionRequest;
 
-namespace Microsoft.SemanticKernel
-{
+namespace Microsoft.SemanticKernel {
     public sealed class CoreChatCompletion : IChatCompletion, ITextCompletion
     {
         private const int MaxResultsPerPrompt = 128;
@@ -51,7 +49,6 @@ namespace Microsoft.SemanticKernel
             return this.InternalGetChatResultsAsync(chat, requestSettings, cancellationToken);
         }
    
-
         public IAsyncEnumerable<IChatStreamingResult> GetStreamingChatCompletionsAsync(ChatHistory chat, ChatRequestSettings requestSettings = null, CancellationToken cancellationToken = default)
         {
             return this.InternalGetChatStreamingResultsAsync(chat, requestSettings, cancellationToken);
@@ -75,7 +72,7 @@ namespace Microsoft.SemanticKernel
         }
 
 
-        private async IAsyncEnumerable<ITextCompletionStreamingResult> InternalGetChatStreamingResultsAsTextAsync(
+        private async IAsyncEnumerable<ITextStreamingResult> InternalGetChatStreamingResultsAsTextAsync(
                 string text,
                 CompleteRequestSettings? textSettings,
                 [EnumeratorCancellation] CancellationToken cancellationToken = default)
@@ -84,7 +81,7 @@ namespace Microsoft.SemanticKernel
 
             await foreach (var chatCompletionStreamingResult in this.InternalGetChatStreamingResultsAsync(chat, chatSettings, cancellationToken))
             {
-                yield return (ITextCompletionStreamingResult)chatCompletionStreamingResult;
+                yield return (ITextStreamingResult)chatCompletionStreamingResult;
             }
         }
 

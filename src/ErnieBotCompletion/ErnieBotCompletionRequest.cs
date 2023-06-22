@@ -1,22 +1,15 @@
-﻿using Microsoft.SemanticKernel.AI.ChatCompletion;
+﻿using Microsoft.SemanticKernel.AI;
+using Microsoft.SemanticKernel.AI.ChatCompletion;
 using Microsoft.SemanticKernel.AI.TextCompletion;
-using Microsoft.SemanticKernel.AI;
 using Microsoft.SemanticKernel.Orchestration;
 using Newtonsoft.Json;
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
 using System.Text.Json.Serialization;
-using System.Threading.Tasks;
 using System.Threading;
-using static Microsoft.SemanticKernel.AI.ChatCompletion.ChatHistory;
-using static Microsoft.SemanticKernel.CreateChatCompletionRequest;
-using Azure;
+using System.Threading.Tasks;
 
-namespace Microsoft.SemanticKernel
-{
+namespace Microsoft.SemanticKernel {
     public class ErnieBotCompletionRequest
     {
         [JsonProperty("messages")]
@@ -32,94 +25,6 @@ namespace Microsoft.SemanticKernel
         public string? UserId { get; set; }
     }
 
-    public class ErnieBotCompletionResponse
-    {
-        [JsonProperty("id")]
-        [JsonPropertyName("id")]
-        public string Id { get; set; }
-
-        [JsonProperty("error_code")]
-        [JsonPropertyName("error_code")]
-        public int ErrorCode { get; set; }
-
-        [JsonProperty("error_msg")]
-        [JsonPropertyName("error_msg")]
-        public string ErrorMsg { get; set; }
-
-        [JsonProperty("object")]
-        [JsonPropertyName("object")]
-        public string Object { get; set; }
-
-        [JsonProperty("created")]
-        [JsonPropertyName("created")]
-        public int Created { get; set; }
-
-        [JsonProperty("result")]
-        [JsonPropertyName("result")]
-        public string Result { get; set; }
-
-        [JsonProperty("need_clear_history")]
-        [JsonPropertyName("need_clear_history")]
-        public bool NeedClearHistory { get; set; }
-
-        [JsonProperty("usage")]
-        [JsonPropertyName("usage")]
-        public ErnieBotUsage Usage { get; set; }
-    }
-
-    public class ErnieBotUsage
-    {
-        [JsonProperty("prompt_tokens")]
-        [JsonPropertyName("prompt_tokens")]
-        public int PromptTokens { get; set; }
-
-        [JsonProperty("completion_tokens")]
-        [JsonPropertyName("completion_tokens")]
-        public int CompletionTokens { get; set; }
-
-        [JsonProperty("total_tokens")]
-        [JsonPropertyName("total_tokens")]
-        public int TotalTokens { get; set; }
-    }
-
-
-    public class Usage
-    {
-
-        [JsonProperty("prompt_tokens")]
-        [JsonPropertyName("prompt_tokens")]
-        public int PromptTokens { get; set; }
-
-
-        [JsonProperty("completion_tokens")]
-        [JsonPropertyName("completion_tokens")]
-        public int CompletionTokens { get; set; }
-
-
-        [JsonProperty("total_tokens")]
-        [JsonPropertyName("total_tokens")]
-        public int TotalTokens { get; set; }
-    }
-
-    public class ErnieBotMessage
-    {
-
-        public ErnieBotMessage(string role, string content)
-        {
-            Role = role.ToLower();
-            Content = content;
-        }
-
-
-        [JsonProperty("role")]
-        [JsonPropertyName("role")]
-        public string Role { get; set; }
-
-        [JsonProperty("content")]
-        [JsonPropertyName("content")]
-        public string Content { get; set; }
-    }
-
     public class ErnieBotChatMessage : ChatMessageBase
     {
         /// <summary>
@@ -132,7 +37,7 @@ namespace Microsoft.SemanticKernel
         }
     }
 
-    internal sealed class ErnieBotChatResult : IChatResult, ITextCompletionResult
+    internal sealed class ErnieBotChatResult : IChatResult, ITextResult
     {
         private readonly ModelResult _modelResult;
         private readonly ErnieBotCompletionResponse _resultData;
@@ -158,7 +63,7 @@ namespace Microsoft.SemanticKernel
         }
 
 
-        internal sealed class ErnieBotChatStreamingResult : IChatStreamingResult, ITextCompletionStreamingResult
+        internal sealed class ErnieBotChatStreamingResult : IChatStreamingResult, ITextStreamingResult
         {
             private readonly ModelResult _modelResult;
             private readonly ErnieBotMessage _message;

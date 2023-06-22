@@ -51,7 +51,7 @@ namespace Microsoft.SemanticKernel
             return this.InternalGetChatResultsAsync(chat, requestSettings, cancellationToken);
         }
 
-        public Task<IReadOnlyList<ITextCompletionResult>> GetCompletionsAsync(string text, CompleteRequestSettings requestSettings, CancellationToken cancellationToken = default)
+        public Task<IReadOnlyList<ITextResult>> GetCompletionsAsync(string text, CompleteRequestSettings requestSettings, CancellationToken cancellationToken = default)
         {
             return this.InternalGetChatResultsAsTextAsync(text, requestSettings, cancellationToken);
         }
@@ -61,12 +61,12 @@ namespace Microsoft.SemanticKernel
             return this.InternalGetChatStreamingResultsAsync(chat, requestSettings, cancellationToken);
         }
 
-        public IAsyncEnumerable<ITextCompletionStreamingResult> GetStreamingCompletionsAsync(string text, CompleteRequestSettings requestSettings, CancellationToken cancellationToken = default)
+        public IAsyncEnumerable<ITextStreamingResult> GetStreamingCompletionsAsync(string text, CompleteRequestSettings requestSettings, CancellationToken cancellationToken = default)
         {
             return this.InternalGetChatStreamingResultsAsTextAsync(text, requestSettings, cancellationToken);
         }
 
-        private async IAsyncEnumerable<ITextCompletionStreamingResult> InternalGetChatStreamingResultsAsTextAsync(
+        private async IAsyncEnumerable<ITextStreamingResult> InternalGetChatStreamingResultsAsTextAsync(
                 string text,
                 CompleteRequestSettings? textSettings,
                 [EnumeratorCancellation] CancellationToken cancellationToken = default)
@@ -75,7 +75,7 @@ namespace Microsoft.SemanticKernel
 
             await foreach (var chatCompletionStreamingResult in this.InternalGetChatStreamingResultsAsync(chat, chatSettings, cancellationToken))
             {
-                yield return (ITextCompletionStreamingResult)chatCompletionStreamingResult;
+                yield return (ITextStreamingResult)chatCompletionStreamingResult;
             }
         }
 
@@ -127,7 +127,7 @@ namespace Microsoft.SemanticKernel
         }
 
 
-        private async Task<IReadOnlyList<ITextCompletionResult>> InternalGetChatResultsAsTextAsync(
+        private async Task<IReadOnlyList<ITextResult>> InternalGetChatResultsAsTextAsync(
                     string text,
                     CompleteRequestSettings? textSettings,
                     CancellationToken cancellationToken = default)
@@ -136,7 +136,7 @@ namespace Microsoft.SemanticKernel
             ChatHistory chat = PrepareChatHistory(text, textSettings, out ChatRequestSettings chatSettings);
 
             return (await this.InternalGetChatResultsAsync(chat, chatSettings, cancellationToken).ConfigureAwait(false))
-                .OfType<ITextCompletionResult>()
+                .OfType<ITextResult>()
                 .ToList();
         }
 

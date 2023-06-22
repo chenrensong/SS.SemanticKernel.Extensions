@@ -142,7 +142,7 @@ namespace Microsoft.SemanticKernel
                 }
             }
         }
-        internal sealed class CoreChatResult : IChatResult, ITextCompletionResult
+        internal sealed class CoreChatResult : IChatResult, ITextResult
         {
             private readonly ModelResult _modelResult;
             private readonly ChatCompletionChoice _choice;
