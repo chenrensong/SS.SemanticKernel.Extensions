@@ -167,7 +167,7 @@ namespace Microsoft.SemanticKernel
             }
         }
 
-        internal sealed class CoreChatStreamingResult : IChatStreamingResult, ITextCompletionStreamingResult
+        internal sealed class CoreChatStreamingResult : IChatStreamingResult, ITextStreamingResult
         {
             private readonly ModelResult _modelResult;
             private readonly List<ChatCompletionChoice> _choice;

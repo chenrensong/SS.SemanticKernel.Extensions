@@ -1,4 +1,5 @@
-﻿using Azure.AI.OpenAI;
+﻿using Azure;
+using Azure.AI.OpenAI;
 using Microsoft.Extensions.Logging;
 using Microsoft.SemanticKernel.AI;
 using Microsoft.SemanticKernel.AI.ChatCompletion;
@@ -49,21 +50,30 @@ namespace Microsoft.SemanticKernel
         {
             return this.InternalGetChatResultsAsync(chat, requestSettings, cancellationToken);
         }
-
-        public Task<IReadOnlyList<ITextCompletionResult>> GetCompletionsAsync(string text, CompleteRequestSettings requestSettings, CancellationToken cancellationToken = default)
-        {
-            return this.InternalGetChatResultsAsTextAsync(text, requestSettings, cancellationToken);
-        }
+   
 
         public IAsyncEnumerable<IChatStreamingResult> GetStreamingChatCompletionsAsync(ChatHistory chat, ChatRequestSettings requestSettings = null, CancellationToken cancellationToken = default)
         {
             return this.InternalGetChatStreamingResultsAsync(chat, requestSettings, cancellationToken);
         }
 
-        public IAsyncEnumerable<ITextCompletionStreamingResult> GetStreamingCompletionsAsync(string text, CompleteRequestSettings requestSettings, CancellationToken cancellationToken = default)
+        public Task<IReadOnlyList<ITextResult>> GetCompletionsAsync(string text, CompleteRequestSettings requestSettings, CancellationToken cancellationToken = default) {
+            return this.InternalGetChatResultsAsTextAsync(text, requestSettings, cancellationToken);
+        }
+
+        public IAsyncEnumerable<ITextStreamingResult> GetStreamingCompletionsAsync(string text, CompleteRequestSettings requestSettings, CancellationToken cancellationToken = default)
         {
             return this.InternalGetChatStreamingResultsAsTextAsync(text, requestSettings, cancellationToken);
         }
+
+        Task<IReadOnlyList<ITextResult>> ITextCompletion.GetCompletionsAsync(string text, CompleteRequestSettings requestSettings, CancellationToken cancellationToken) {
+            throw new NotImplementedException();
+        }
+
+        IAsyncEnumerable<ITextStreamingResult> ITextCompletion.GetStreamingCompletionsAsync(string text, CompleteRequestSettings requestSettings, CancellationToken cancellationToken) {
+            throw new NotImplementedException();
+        }
+
 
         private async IAsyncEnumerable<ITextCompletionStreamingResult> InternalGetChatStreamingResultsAsTextAsync(
                 string text,
@@ -134,7 +144,7 @@ namespace Microsoft.SemanticKernel
         }
 
 
-        private async Task<IReadOnlyList<ITextCompletionResult>> InternalGetChatResultsAsTextAsync(
+        private async Task<IReadOnlyList<ITextResult>> InternalGetChatResultsAsTextAsync(
                     string text,
                     CompleteRequestSettings? textSettings,
                     CancellationToken cancellationToken = default)
@@ -143,7 +153,7 @@ namespace Microsoft.SemanticKernel
             ChatHistory chat = PrepareChatHistory(text, textSettings, out ChatRequestSettings chatSettings);
 
             return (await this.InternalGetChatResultsAsync(chat, chatSettings, cancellationToken).ConfigureAwait(false))
-                .OfType<ITextCompletionResult>()
+                .OfType<ITextResult>()
                 .ToList();
         }
 
@@ -163,6 +173,8 @@ namespace Microsoft.SemanticKernel
             };
             return chat;
         }
+
+  
 
 
         private async IAsyncEnumerable<IChatStreamingResult> InternalGetChatStreamingResultsAsync(
@@ -270,6 +282,8 @@ namespace Microsoft.SemanticKernel
                     $"MaxTokens {maxTokens} is not valid, the value must be greater than zero");
             }
         }
+
+ 
     }
 }
 
