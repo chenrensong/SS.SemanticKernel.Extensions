@@ -23,10 +23,9 @@ namespace Microsoft.SemanticKernel
 
             this.MaxSize = maxSize;
 
-            sk.CreateSemanticFunction(SkillConst.Load("Summary.skprompt.txt"),
-                "Summarise",
-                "Summary",
-                maxTokens: 1024);
+            sk.CreateSemanticFunction(promptTemplate: SkillConst.Load("Summary.skprompt.txt"),
+                                      functionName: "Summarise",
+                                      pluginName: "Summary", description: null, requestSettings: null);
         }
 
         public async Task<IEnumerable<ContentResource>> Run(ContentResource input)
@@ -62,12 +61,13 @@ namespace Microsoft.SemanticKernel
             foreach (var item in toSummarise)
             {
                 var result = await _Kernel.RunAsync(item, _Kernel.Skills.GetFunction("Summary", "Summarise"));
+                var resultString = result.GetValue<string>();
 
                 toReturn.Add(new TextResource
                 {
                     ContentType = textResource.ContentType,
                     Id = $"{textResource.Id}_{Guid.NewGuid()}",
-                    Value = result.Result
+                    Value = resultString
                 });
             }
 

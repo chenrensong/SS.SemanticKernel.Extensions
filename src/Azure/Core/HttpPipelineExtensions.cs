@@ -1,0 +1,106 @@
+﻿// Azure.AI.OpenAI, Version=1.0.0.0, Culture=neutral, PublicKeyToken=92742159e12e44c8
+// Azure.Core.HttpPipelineExtensions
+using System.Runtime.CompilerServices;
+using System.Threading;
+using System.Threading.Tasks;
+using Azure;
+using Azure.Core;
+using Azure.Core.Pipeline;
+internal static class HttpPipelineExtensions
+{
+    public static async ValueTask<Response> ProcessMessageAsync(this HttpPipeline pipeline, HttpMessage message, RequestContext? requestContext, CancellationToken cancellationToken = default)
+    {
+        var (userCt, statusOption) = ApplyRequestContext(requestContext);
+        if (!userCt.CanBeCanceled || !cancellationToken.CanBeCanceled)
+        {
+            await pipeline.SendAsync(message, cancellationToken.CanBeCanceled ? cancellationToken : userCt).ConfigureAwait(false);
+        }
+        else
+        {
+            using var cts = CancellationTokenSource.CreateLinkedTokenSource(userCt, cancellationToken);
+            await pipeline.SendAsync(message, cts.Token).ConfigureAwait(false);
+        }
+
+        if (!message.Response.IsError || statusOption == ErrorOptions.NoThrow)
+        {
+            return message.Response;
+        }
+
+        throw new RequestFailedException(message.Response);
+    }
+
+    public static Response ProcessMessage(this HttpPipeline pipeline, HttpMessage message, RequestContext? requestContext, CancellationToken cancellationToken = default)
+    {
+        var (userCt, statusOption) = ApplyRequestContext(requestContext);
+        if (!userCt.CanBeCanceled || !cancellationToken.CanBeCanceled)
+        {
+            pipeline.Send(message, cancellationToken.CanBeCanceled ? cancellationToken : userCt);
+        }
+        else
+        {
+            using var cts = CancellationTokenSource.CreateLinkedTokenSource(userCt, cancellationToken);
+            pipeline.Send(message, cts.Token);
+        }
+
+        if (!message.Response.IsError || statusOption == ErrorOptions.NoThrow)
+        {
+            return message.Response;
+        }
+
+        throw new RequestFailedException(message.Response);
+    }
+
+    public static async ValueTask<Response<bool>> ProcessHeadAsBoolMessageAsync(this HttpPipeline pipeline, HttpMessage message, ClientDiagnostics clientDiagnostics, RequestContext? requestContext)
+    {
+        var response = await pipeline.ProcessMessageAsync(message, requestContext).ConfigureAwait(false);
+        switch (response.Status)
+        {
+            case >= 200 and < 300:
+                return Response.FromValue(true, response);
+            case >= 400 and < 500:
+                return Response.FromValue(false, response);
+            default:
+                return new ErrorResponse<bool>(response, new RequestFailedException(response));
+        }
+    }
+
+    public static Response<bool> ProcessHeadAsBoolMessage(this HttpPipeline pipeline, HttpMessage message, ClientDiagnostics clientDiagnostics, RequestContext? requestContext)
+    {
+        var response = pipeline.ProcessMessage(message, requestContext);
+        switch (response.Status)
+        {
+            case >= 200 and < 300:
+                return Response.FromValue(true, response);
+            case >= 400 and < 500:
+                return Response.FromValue(false, response);
+            default:
+                return new ErrorResponse<bool>(response, new RequestFailedException(response));
+        }
+    }
+
+    private static (CancellationToken CancellationToken, ErrorOptions ErrorOptions) ApplyRequestContext(RequestContext? requestContext)
+    {
+        if (requestContext == null)
+        {
+            return (CancellationToken.None, ErrorOptions.Default);
+        }
+
+        return (requestContext.CancellationToken, requestContext.ErrorOptions);
+    }
+
+    internal class ErrorResponse<T> : Response<T>
+    {
+        private readonly Response _response;
+        private readonly RequestFailedException _exception;
+
+        public ErrorResponse(Response response, RequestFailedException exception)
+        {
+            _response = response;
+            _exception = exception;
+        }
+
+        public override T Value { get => throw _exception; }
+
+        public override Response GetRawResponse() => _response;
+    }
+}

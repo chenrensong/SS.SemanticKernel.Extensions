@@ -4,7 +4,7 @@
 		<TargetFramework>netstandard2.0</TargetFramework>
 		<LangVersion>11</LangVersion>
 		<PackageId>SS.SemanticKernel.Extensions</PackageId>
-		<Version>1.1.0</Version>
+		<Version>1.3.0</Version>
 		<Authors>chenrensong</Authors>
 		<Company>chenrensong</Company>
 		<Product>SS.SemanticKernel.Extensions</Product>
@@ -16,16 +16,103 @@
 		<RepositoryType>git</RepositoryType>
 		<PackageTags>SemanticKernel, Embedding, TextEmbeddings</PackageTags>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <Compile Remove="AI\**" />
+	  <Compile Remove="Connectors\**" />
+	  <Compile Remove="ErnieBotCompletion\**" />
+	  <Compile Remove="Skills\**" />
+	  <EmbeddedResource Remove="AI\**" />
+	  <EmbeddedResource Remove="Connectors\**" />
+	  <EmbeddedResource Remove="ErnieBotCompletion\**" />
+	  <EmbeddedResource Remove="Skills\**" />
+	  <None Remove="AI\**" />
+	  <None Remove="Connectors\**" />
+	  <None Remove="ErnieBotCompletion\**" />
+	  <None Remove="Skills\**" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Compile Remove="CoreKernelBuilderExtensions.cs" />
+	  <Compile Remove="NonDisposableCoreHttpClientHandler.cs" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Compile Include="Connectors\Custom\AzureSdk\AddHeaderRequestPolicy.cs" />
+	  <Compile Include="Connectors\Custom\AzureSdk\AzureOpenAIChatMessage.cs" />
+	  <Compile Include="Connectors\Custom\AzureSdk\AzureOpenAIClientBase.cs" />
+	  <Compile Include="Connectors\Custom\AzureSdk\ChatModelResult.cs" />
+	  <Compile Include="Connectors\Custom\AzureSdk\ChatResult.cs" />
+	  <Compile Include="Connectors\Custom\AzureSdk\ChatResultExtensions.cs" />
+	  <Compile Include="Connectors\Custom\AzureSdk\ChatStreamingModelResult.cs" />
+	  <Compile Include="Connectors\Custom\AzureSdk\ChatStreamingResult.cs" />
+	  <Compile Include="Connectors\Custom\AzureSdk\ChatStreamingResultExtensions.cs" />
+	  <Compile Include="Connectors\Custom\AzureSdk\ClientBase.cs" />
+	  <Compile Include="Connectors\Custom\AzureSdk\FunctionCollectionExtensions.cs" />
+	  <Compile Include="Connectors\Custom\AzureSdk\FunctionViewExtensions.cs" />
+	  <Compile Include="Connectors\Custom\AzureSdk\OpenAIClientBase.cs" />
+	  <Compile Include="Connectors\Custom\AzureSdk\OpenAIFunction.cs" />
+	  <Compile Include="Connectors\Custom\AzureSdk\OpenAIFunctionExtensions.cs" />
+	  <Compile Include="Connectors\Custom\AzureSdk\OpenAIFunctionResponse.cs" />
+	  <Compile Include="Connectors\Custom\AzureSdk\RequestFailedExceptionExtensions.cs" />
+	  <Compile Include="Connectors\Custom\AzureSdk\TextModelResult.cs" />
+	  <Compile Include="Connectors\Custom\AzureSdk\TextResult.cs" />
+	  <Compile Include="Connectors\Custom\AzureSdk\TextStreamingResult.cs" />
+	  <Compile Include="Connectors\Custom\ChatCompletionWithData\AzureOpenAIChatCompletionWithData.cs" />
+	  <Compile Include="Connectors\Custom\ChatCompletionWithData\AzureOpenAIChatCompletionWithDataConfig.cs" />
+	  <Compile Include="Connectors\Custom\ChatCompletionWithData\ChatWithDataChoice.cs" />
+	  <Compile Include="Connectors\Custom\ChatCompletionWithData\ChatWithDataMessage.cs" />
+	  <Compile Include="Connectors\Custom\ChatCompletionWithData\ChatWithDataModelResult.cs" />
+	  <Compile Include="Connectors\Custom\ChatCompletionWithData\ChatWithDataRequest.cs" />
+	  <Compile Include="Connectors\Custom\ChatCompletionWithData\ChatWithDataResponse.cs" />
+	  <Compile Include="Connectors\Custom\ChatCompletionWithData\ChatWithDataResult.cs" />
+	  <Compile Include="Connectors\Custom\ChatCompletionWithData\ChatWithDataSource.cs" />
+	  <Compile Include="Connectors\Custom\ChatCompletionWithData\ChatWithDataSourceParameters.cs" />
+	  <Compile Include="Connectors\Custom\ChatCompletionWithData\ChatWithDataSourceType.cs" />
+	  <Compile Include="Connectors\Custom\ChatCompletionWithData\ChatWithDataStreamingChoice.cs" />
+	  <Compile Include="Connectors\Custom\ChatCompletionWithData\ChatWithDataStreamingDelta.cs" />
+	  <Compile Include="Connectors\Custom\ChatCompletionWithData\ChatWithDataStreamingMessage.cs" />
+	  <Compile Include="Connectors\Custom\ChatCompletionWithData\ChatWithDataStreamingResponse.cs" />
+	  <Compile Include="Connectors\Custom\ChatCompletionWithData\ChatWithDataStreamingResult.cs" />
+	  <Compile Include="Connectors\Custom\ChatCompletion\AzureOpenAIChatCompletion.cs" />
+	  <Compile Include="Connectors\Custom\ChatCompletion\ChatHistoryExtensions.cs" />
+	  <Compile Include="Connectors\Custom\ChatCompletion\ChatPromptParser.cs" />
+	  <Compile Include="Connectors\Custom\ChatCompletion\OpenAIChatCompletion.cs" />
+	  <Compile Include="Connectors\Custom\ChatCompletion\OpenAIChatHistory.cs" />
+	  <Compile Include="Connectors\Custom\CustomClient\OpenAIClientBase.cs" />
+	  <Compile Include="Connectors\Custom\ImageGeneration\AzureOpenAIImageGeneration.cs" />
+	  <Compile Include="Connectors\Custom\ImageGeneration\AzureOpenAIImageGenerationResponse.cs" />
+	  <Compile Include="Connectors\Custom\ImageGeneration\AzureOpenAIImageOperationStatus.cs" />
+	  <Compile Include="Connectors\Custom\ImageGeneration\ImageGenerationRequest.cs" />
+	  <Compile Include="Connectors\Custom\ImageGeneration\ImageGenerationResponse.cs" />
+	  <Compile Include="Connectors\Custom\ImageGeneration\OpenAIImageGeneration.cs" />
+	  <Compile Include="Connectors\Custom\CoreOpenAIKernelBuilderExtensions.cs" />
+	  <Compile Include="Connectors\Custom\OpenAIKernelExtensions.cs" />
+	  <Compile Include="Connectors\Custom\OpenAIMemoryBuilderExtensions.cs" />
+	  <Compile Include="Connectors\Custom\OpenAIModelResultExtensions.cs" />
+	  <Compile Include="Connectors\Custom\CoreOpenAIRequestSettings.cs" />
+	  <Compile Include="Connectors\Custom\CoreOpenAIRequestSettingsConverter.cs" />
+	  <Compile Include="Connectors\Custom\TextCompletion\AzureTextCompletion.cs" />
+	  <Compile Include="Connectors\Custom\TextCompletion\CoreOpenAITextCompletion.cs" />
+	  <Compile Include="Connectors\Custom\TextEmbedding\AzureOpenAITextEmbeddingGeneration.cs" />
+	  <Compile Include="Connectors\Custom\TextEmbedding\OpenAITextEmbeddingGeneration.cs" />
+	  <Compile Include="Connectors\Custom\TextEmbedding\TextEmbeddingRequest.cs" />
+	  <Compile Include="Connectors\Custom\TextEmbedding\TextEmbeddingResponse.cs" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<PackageReference Include="BlingFireNuget" Version="0.1.8" />
-		<PackageReference Include="Microsoft.Playwright" Version="1.34.0" />
-		<PackageReference Include="Microsoft.SemanticKernel" Version="0.16.230615.1-preview" />
+		<PackageReference Include="Microsoft.Playwright" Version="1.40.0" />
+		<PackageReference Include="Microsoft.SemanticKernel" Version="1.0.0-beta8" />
+		<PackageReference Include="Microsoft.SemanticKernel.Abstractions" Version="1.0.0-beta8" />
+		<PackageReference Include="Microsoft.SemanticKernel.Core" Version="1.0.0-beta8" />
+		<PackageReference Include="Microsoft.SemanticKernel.Functions.Semantic" Version="1.0.0-beta2" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-		<PackageReference Include="PdfPig" Version="0.1.8" />
+		<PackageReference Include="PdfPig" Version="0.1.9-alpha-20231119-4537e" />
 		<PackageReference Include="System.Net.Http" Version="4.3.4" />
-		<PackageReference Include="System.Net.Http.Json" Version="7.0.1" />
+		<PackageReference Include="System.Net.Http.Json" Version="8.0.0" />
 	</ItemGroup>
 
 </Project>

@@ -53,7 +53,6 @@ public class CsvDataSource : IDataSource
                 }
             }            
         }
-
         return toReturn;
     }
 }

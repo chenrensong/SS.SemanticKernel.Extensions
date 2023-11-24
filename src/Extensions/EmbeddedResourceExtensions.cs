@@ -1,11 +1,5 @@
-﻿using Microsoft.SemanticKernel.Security;
-using Microsoft.SemanticKernel.SkillDefinition;
-using Microsoft.SemanticKernel;
-using System;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
 using System.Reflection;
-using System.Text;
 
 namespace SS.SemanticKernel.Extensions
 {
